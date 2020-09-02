@@ -67,7 +67,7 @@ class Send(View):
         if not request.user.is_authenticated:  # 未登入
             return HttpResponseRedirect('/admin/login/?next=/pushMessage')
         return render(request, "index.html", {
-            "groups": self.groupsOptions
+            "groups": groupsOptions
         })
 
     def post(self, request):
@@ -84,14 +84,14 @@ class Send(View):
                 "title": title,
                 "content": content,
                 "message": "未填寫完成",
-                "groups": self.groupsOptions
+                "groups": groupsOptions
             })
         if len(title) > 20:
             return render(request, "index.html", {
                 "title": title,
                 "content": content,
                 "message": "標題長度不要超過20",
-                "groups": self.groupsOptions
+                "groups": groupsOptions
             })
         for group in groups:
             if int(group) == -1:
@@ -103,8 +103,14 @@ class Send(View):
                         "title": title,
                         "content": content,
                         "message": "推播發送失敗",
-                        "groups": self.groupsOptions
+                        "groups": groupsOptions
                     })
+                Message(
+                    user=request.user,
+                    message=content,
+                    toGroup="全部",
+                    title=title
+                ).save()
             else:
                 tokens = AccessToken.objects.filter(groups=int(group))
                 status = self.send_pro(content, tokens)
@@ -114,17 +120,17 @@ class Send(View):
                         "title": title,
                         "content": content,
                         "message": "推播發送失敗",
-                        "groups": self.groupsOptions
+                        "groups": groupsOptions
                     })
-            Message(
-                user=request.user,
-                message=content,
-                toGroup=BroadcastGroup.objects.get(id=group).name,
-                title=title
-            ).save()
+                Message(
+                    user=request.user,
+                    message=content,
+                    toGroup=BroadcastGroup.objects.get(id=group).name,
+                    title=title
+                ).save()
         return render(request, "index.html", {
                 "title": title,
                 "content": content,
                 "message": "推播發送成功",
-                "groups": self.groupsOptions
+                "groups": groupsOptions
         })
