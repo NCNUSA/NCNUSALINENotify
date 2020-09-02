@@ -60,11 +60,10 @@ class Send(View):
                 return status
         return None
 
-    groupsOptions = [{'name': '全部', 'id': -1}]
-    for x in BroadcastGroup.objects.all():
-        groupsOptions.append({'name': x.name, 'id': x.id})
-
     def get(self, request):
+        groupsOptions = [{'name': '全部', 'id': -1}]
+        for x in BroadcastGroup.objects.all():
+            groupsOptions.append({'name': x.name, 'id': x.id})
         if not request.user.is_authenticated:  # 未登入
             return HttpResponseRedirect('/admin/login/?next=/pushMessage')
         return render(request, "index.html", {
@@ -72,6 +71,9 @@ class Send(View):
         })
 
     def post(self, request):
+        groupsOptions = [{'name': '全部', 'id': -1}]
+        for x in BroadcastGroup.objects.all():
+            groupsOptions.append({'name': x.name, 'id': x.id})
         if not request.user.is_authenticated:  # 未登入
             return HttpResponseForbidden('想幹嘛')
         title = request.POST.get("title")
