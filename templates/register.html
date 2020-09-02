@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+{% load static %}
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>暨大學生會推播系統</title>
+  <link rel="stylesheet" href="{% static 'materialize/css/materialize.min.css' %}">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <style>
+    #toast-container {
+      right: 50%;
+      transform: translateX(50%);
+    }
+  </style>
+</head>
+
+<body class="grey lighten-3">
+  <header>
+    <nav class="navbar-light blue lighten-2">
+      <div class="nav-wrapper">
+        <a href="#" data-target="mobile-demo" class="sidenav-trigger"><i class="material-icons">menu</i></a>
+        <a href="/" class="brand-logo center">
+          <img src="{% static 'logo.png' %}" alt="LOGO" style="height: 60px;">
+        </a>
+        <ul id="nav-mobile" class="left hide-on-med-and-down">
+          {% if user.is_authenticated  %}
+          <li><a href="admin">管理介面</a></li>
+          <li><a href="pushMessage">推播訊息</a></li>
+          {% endif %}
+        </ul>
+        <ul id="nav-mobile" class="right hide-on-med-and-down">
+          {% if user.is_authenticated  %}
+          <li class="nav-item ">
+            <a class="nav-link" href="#">{{ user.username }} 您好</a>
+          </li>
+          <li class="nav-item ">
+            <a class="nav-link" href="/admin/logout">登出</a>
+          </li>
+          {% else %}
+          <li><a href="admin/login/?next=/pushMessage">登入</a></li>
+          {% endif %}
+        </ul>
+      </div>
+    </nav>
+    <ul class="sidenav" id="mobile-demo">
+      {% if user.is_authenticated  %}
+      <li><a href="admin">管理介面</a></li>
+      <li><a href="pushMessage">推播訊息</a></li>
+      <li class="nav-item ">
+        <a class="nav-link" href="#">{{ user.username }} 您好</a>
+      </li>
+      <li class="nav-item ">
+        <a class="nav-link" href="/admin/logout">登出</a>
+      </li>
+      {% else %}
+      <li><a href="admin/login/?next=/pushMessage">登入</a></li>
+      {% endif %}
+    </ul>
+  </header>
+  <main>
+    <div class="container">
+      <div class="center">
+        <h2>LINE 推播訊息</h2>
+      </div>
+      {% csrf_token %}
+      <div class="center">
+        {% if id %}
+        <button class="btn waves-effect waves-light btn-large" onclick="auth()">
+          註冊<i class="material-icons right">send</i>
+        </button>
+        {% else %}
+        <button class="btn waves-effect waves-light btn-large" disable>
+          你已註冊
+        </button>
+        {% endif %}
+        <div style="margin-top: 10px">
+          <a href="https://notify-bot.line.me/my/" class="">
+            解除連動
+          </a>
+        </div>
+      </div>
+    </div>
+    </div>
+  </main>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="{% static 'materialize/js/materialize.min.js' %}"></script>
+  {% if id %}
+  <script>
+    $(document).ready(function () {
+      $('.sidenav').sidenav();
+    });
+    const csrftoken = jQuery("[name=csrfmiddlewaretoken]").val();
+    console.log(csrftoken)
+    function auth() {
+      console.log("as")
+      var URL = 'https://notify-bot.line.me/oauth/authorize?';
+      URL += 'response_type=code';
+      URL += '&client_id={{id}}';
+      URL += '&redirect_uri={{url}}';
+      URL += '&scope=notify';
+      URL += '&state=' + csrftoken;
+      window.location.href = URL;
+    }
+  </script>
+  {% endif %}
+</body>
+
+</html>
